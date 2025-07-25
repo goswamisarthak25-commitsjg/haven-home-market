@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { ShoppingCart, User, Menu, X, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,9 @@ interface NavbarProps {
 
 const Navbar = ({ cartItems = 0, user }: NavbarProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleCartClick = () => {
     navigate("/cart");
@@ -24,6 +26,18 @@ const Navbar = ({ cartItems = 0, user }: NavbarProps) => {
     } else {
       navigate("/auth");
     }
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+      setIsMenuOpen(false);
+    }
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
   };
 
   return (
@@ -56,13 +70,15 @@ const Navbar = ({ cartItems = 0, user }: NavbarProps) => {
 
           {/* Search Bar */}
           <div className="hidden md:flex items-center space-x-4 flex-1 max-w-md mx-8">
-            <div className="relative w-full">
+            <form onSubmit={handleSearch} className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input 
                 placeholder="Search furniture..." 
                 className="pl-10 bg-muted/50 border-border"
+                value={searchQuery}
+                onChange={handleSearchChange}
               />
-            </div>
+            </form>
           </div>
 
           {/* Desktop Actions */}
@@ -109,13 +125,15 @@ const Navbar = ({ cartItems = 0, user }: NavbarProps) => {
           <div className="md:hidden py-4 border-t border-border">
             <div className="flex flex-col space-y-4">
               {/* Mobile Search */}
-              <div className="relative">
+              <form onSubmit={handleSearch} className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                 <Input 
                   placeholder="Search furniture..." 
                   className="pl-10 bg-muted/50 border-border"
+                  value={searchQuery}
+                  onChange={handleSearchChange}
                 />
-              </div>
+              </form>
               
               {/* Mobile Navigation Links */}
               <Link 
