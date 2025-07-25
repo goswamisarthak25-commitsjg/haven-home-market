@@ -3,6 +3,7 @@ import { Heart, ShoppingCart, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { useCart } from "@/contexts/CartContext";
 
 interface Product {
   id: string;
@@ -18,22 +19,18 @@ interface Product {
 
 interface ProductCardProps {
   product: Product;
-  onAddToCart?: (product: Product) => void;
-  onViewDetails?: (product: Product) => void;
+  viewMode?: "grid" | "list";
 }
 
-const ProductCard = ({ product, onAddToCart, onViewDetails }: ProductCardProps) => {
+const ProductCard = ({ product, viewMode = "grid" }: ProductCardProps) => {
   const [isLiked, setIsLiked] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const { toast } = useToast();
+  const { addToCart, loading } = useCart();
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onAddToCart?.(product);
-    toast({
-      title: "Added to cart",
-      description: `${product.name} has been added to your cart.`,
-    });
+    addToCart(product);
   };
 
   const handleToggleLike = (e: React.MouseEvent) => {
@@ -46,7 +43,7 @@ const ProductCard = ({ product, onAddToCart, onViewDetails }: ProductCardProps) 
   };
 
   const handleViewDetails = () => {
-    onViewDetails?.(product);
+    console.log("View details:", product);
   };
 
   const discountPercentage = product.originalPrice 
@@ -100,7 +97,7 @@ const ProductCard = ({ product, onAddToCart, onViewDetails }: ProductCardProps) 
             className="w-10 h-10 p-0 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background"
             onClick={(e) => {
               e.stopPropagation();
-              onViewDetails?.(product);
+              handleViewDetails();
             }}
           >
             <Eye className="w-4 h-4 text-muted-foreground" />
@@ -115,9 +112,10 @@ const ProductCard = ({ product, onAddToCart, onViewDetails }: ProductCardProps) 
             onClick={handleAddToCart}
             className="w-full btn-hero"
             size="sm"
+            disabled={loading}
           >
             <ShoppingCart className="w-4 h-4 mr-2" />
-            Add to Cart
+            {loading ? "Adding..." : "Add to Cart"}
           </Button>
         </div>
       </div>

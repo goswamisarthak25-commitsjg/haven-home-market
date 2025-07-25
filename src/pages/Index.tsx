@@ -54,26 +54,16 @@ const featuredProducts = [
 ];
 
 const Index = () => {
-  const [cartItems, setCartItems] = useState(0);
   const { toast } = useToast();
 
-  const handleAddToCart = (product: any) => {
-    setCartItems(prev => prev + 1);
-    toast({
-      title: "Added to cart",
-      description: `${product.name} has been added to your cart.`,
-    });
-  };
-
   const handleViewDetails = (product: any) => {
-    // In real app, navigate to product detail page
     console.log("View details:", product);
   };
 
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <Navbar cartItems={cartItems} />
+      <Navbar />
 
       {/* Hero Section */}
       <Hero />
@@ -91,11 +81,9 @@ const Index = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             {featuredProducts.map((product) => (
-              <ProductCard
-                key={product.id}
+              <ProductCard 
+                key={product.id} 
                 product={product}
-                onAddToCart={handleAddToCart}
-                onViewDetails={handleViewDetails}
               />
             ))}
           </div>

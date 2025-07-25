@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import ProductCard from "@/components/ProductCard";
+import Navbar from "@/components/Navbar";
 
 // Mock product data - in real app this would come from Supabase
 const mockProducts = [
@@ -133,6 +134,7 @@ const Products = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Navbar />
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -241,8 +243,6 @@ const Products = () => {
             <ProductCard
               key={product.id}
               product={product}
-              onAddToCart={handleAddToCart}
-              onViewDetails={handleViewDetails}
             />
           ))}
         </div>

@@ -4,17 +4,18 @@ import { ShoppingCart, User, Menu, X, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { useCart } from "@/contexts/CartContext";
 
 interface NavbarProps {
-  cartItems?: number;
   user?: any;
 }
 
-const Navbar = ({ cartItems = 0, user }: NavbarProps) => {
+const Navbar = ({ user }: NavbarProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
+  const { totalItems } = useCart();
 
   const handleCartClick = () => {
     navigate("/cart");
@@ -90,12 +91,12 @@ const Navbar = ({ cartItems = 0, user }: NavbarProps) => {
               className="relative"
             >
               <ShoppingCart className="w-5 h-5" />
-              {cartItems > 0 && (
+              {totalItems > 0 && (
                 <Badge 
                   variant="destructive" 
                   className="absolute -top-2 -right-2 w-5 h-5 flex items-center justify-center p-0 text-xs"
                 >
-                  {cartItems}
+                  {totalItems}
                 </Badge>
               )}
             </Button>
@@ -177,12 +178,12 @@ const Navbar = ({ cartItems = 0, user }: NavbarProps) => {
                 >
                   <ShoppingCart className="w-5 h-5 mr-2" />
                   Cart
-                  {cartItems > 0 && (
+                  {totalItems > 0 && (
                     <Badge 
                       variant="destructive" 
                       className="ml-2"
                     >
-                      {cartItems}
+                      {totalItems}
                     </Badge>
                   )}
                 </Button>
