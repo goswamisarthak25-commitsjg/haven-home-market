@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Eye, EyeOff, Mail, Lock, User, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -20,6 +21,18 @@ const Auth = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  // Check if user is already logged in
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        navigate('/');
+      }
+    };
+    checkUser();
+  }, [navigate]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -44,28 +57,54 @@ const Auth = () => {
     }
 
     try {
-      // In real app, this would connect to Supabase auth
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-      
-      toast({
-        title: isSignUp ? "Account created successfully!" : "Welcome back!",
-        description: isSignUp 
-          ? "Please check your email to verify your account." 
-          : "You have been successfully signed in.",
-      });
+      if (isSignUp) {
+        const { data, error } = await supabase.auth.signUp({
+          email: formData.email,
+          password: formData.password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/`,
+            data: {
+              first_name: formData.firstName,
+              last_name: formData.lastName,
+            }
+          }
+        });
 
-      // Reset form
-      setFormData({
-        email: "",
-        password: "",
-        confirmPassword: "",
-        firstName: "",
-        lastName: "",
-      });
-    } catch (error) {
+        if (error) throw error;
+
+        toast({
+          title: "Account created successfully!",
+          description: "Please check your email to verify your account.",
+        });
+
+        // Reset form
+        setFormData({
+          email: "",
+          password: "",
+          confirmPassword: "",
+          firstName: "",
+          lastName: "",
+        });
+      } else {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password,
+        });
+
+        if (error) throw error;
+
+        toast({
+          title: "Welcome back!",
+          description: "You have been successfully signed in.",
+        });
+
+        // Redirect to home
+        navigate('/');
+      }
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Something went wrong. Please try again.",
+        description: error.message || "Something went wrong. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -229,7 +268,26 @@ const Auth = () => {
 
             {/* Social Login */}
             <div className="space-y-3">
-              <Button variant="outline" className="w-full" type="button">
+              <Button 
+                variant="outline" 
+                className="w-full" 
+                type="button"
+                onClick={async () => {
+                  const { error } = await supabase.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                      redirectTo: `${window.location.origin}/`
+                    }
+                  });
+                  if (error) {
+                    toast({
+                      title: "Error",
+                      description: error.message,
+                      variant: "destructive",
+                    });
+                  }
+                }}
+              >
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                   <path
                     fill="currentColor"

@@ -1,21 +1,19 @@
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { ShoppingCart, User, Menu, X, Search } from "lucide-react";
+import { ShoppingCart, User, Menu, X, Search, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 
-interface NavbarProps {
-  user?: any;
-}
-
-const Navbar = ({ user }: NavbarProps) => {
+const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
   const { totalItems } = useCart();
+  const { user, signOut } = useAuth();
 
   const handleCartClick = () => {
     navigate("/cart");
@@ -23,7 +21,7 @@ const Navbar = ({ user }: NavbarProps) => {
 
   const handleAuthClick = () => {
     if (user) {
-      navigate("/profile");
+      signOut();
     } else {
       navigate("/auth");
     }
@@ -105,8 +103,8 @@ const Navbar = ({ user }: NavbarProps) => {
               size="sm"
               onClick={handleAuthClick}
             >
-              <User className="w-5 h-5" />
-              <span className="ml-2">{user ? "Profile" : "Sign In"}</span>
+              {user ? <LogOut className="w-5 h-5" /> : <User className="w-5 h-5" />}
+              <span className="ml-2">{user ? "Sign Out" : "Sign In"}</span>
             </Button>
           </div>
 
@@ -194,8 +192,8 @@ const Navbar = ({ user }: NavbarProps) => {
                     setIsMenuOpen(false);
                   }}
                 >
-                  <User className="w-5 h-5 mr-2" />
-                  {user ? "Profile" : "Sign In"}
+                  {user ? <LogOut className="w-5 h-5 mr-2" /> : <User className="w-5 h-5 mr-2" />}
+                  {user ? "Sign Out" : "Sign In"}
                 </Button>
               </div>
             </div>
